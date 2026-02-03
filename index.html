@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>For My Girlfriend</title>
+  <style>
+    :root {
+      --bg: #fce4ec;
+      --accent: #d81b60;
+      --yes: #4caf50;
+      --no: #f44336;
+    }
+
+    /* Page layout */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      overflow: hidden; /* Prevents scrollbars */
+      -webkit-user-select: none; /* iOS Safari */
+      user-select: none;
+      touch-action: manipulation; /* Improves touch response */
+    }
+
+    /* Titles */
+    h1.title {
+      color: var(--accent);
+      margin: 10px 0 20px;
+      font-size: 2rem;
+      padding: 0 10px;
+      line-height: 1.2;
+    }
+
+    /* Gif container */
+    .gif-container img {
+      width: 100%;
+      max-width: 260px; /* Max size on desktop */
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Buttons wrapper */
+    .buttons {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      padding: 0 20px;
+      margin-top: 10px;
+      min-height: 60px; /* Keeps layout stable */
+    }
+
+    /* Button base style */
+    button {
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s ease; /* Smooth growing/shrinking */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      -webkit-tap-highlight-color: transparent; /* No blue box on mobile */
+      position: relative;
+    }
+
+    /* Yes button */
+    #yesBtn {
+      background: var(--yes);
+      color: #fff;
+      font-size: 1.2rem;
+      padding: 12px 24px;
+      z-index: 2; /* Ensures it eventually covers the No button */
+    }
+
+    /* No button */
+    #noBtn {
+      background: var(--no);
+      color: #fff;
+      font-size: 1.2rem;
+      padding: 12px 24px;
+    }
+
+    /* Hidden helper */
+    .hidden { display: none !important; }
+
+    /* Success container styling */
+    #successContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      padding: 20px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    #successContainer h1 {
+      color: #8b1e4a;
+      font-size: 1.5rem;
+      max-width: 90%;
+      line-height: 1.4;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="questionContainer">
+    <div class="gif-container">
+      <img src="https://media.tenor.com/K2Qe8k7f26cAAAAC/cat-crying.gif" alt="Sad Cute Cat">
+    </div>
+
+    <h1 class="title">Do you forgive me?</h1>
+
+    <div class="buttons">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
+    </div>
+  </div>
+
+  <div id="successContainer" class="hidden">
+    <div class="gif-container">
+      <img src="https://media.tenor.com/gUiu1zyxfzYAAAAC/bear-kiss-bear-kisses.gif" alt="Happy Hug">
+    </div>
+    <h1>I know I messed up, and I’m truly sorry. Please know that my heart is always with you. I love you, today and always ❤️</h1>
+  </div>
+
+  <script>
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn  = document.getElementById('noBtn');
+    const questionContainer = document.getElementById('questionContainer');
+    const successContainer  = document.getElementById('successContainer');
+
+    // CONFIGURATION
+    // How much the "No" button shrinks per click (Lower number = More clicks allowed)
+    const SHRINK_STEP = 0.04; 
+    // How much the "Yes" button grows per click
+    const GROW_STEP = 0.3;    
+
+    let clickCount = 0;
+    let currentScale = 1;
+    let currentYesScale = 1;
+
+    // Expanded text list so it stays fresh for many clicks
+    const noTexts = [
+      "No",
+      "Are you sure?",
+      "Really sure?",
+      "Pookie please",
+      "Don't do this",
+      "I'm gonna cry",
+      "You're breaking my heart",
+      "I'll be so sad",
+      "Pretty please?",
+      "Please forgive me",
+      "I'm sorry :(",
+      "Don't be mean",
+      "Have a heart",
+      "Please?",
+      "I'll make it up to you",
+      "One last chance?",
+      "Okay, stop now...",
+      "Seriously stop",
+      "Just click Yes!",
+      "Fine, I'll hide."
+    ];
+
+    noBtn.addEventListener('click', () => {
+      clickCount++;
+
+      // 1. Change Text
+      // If we run out of text, keep showing the last one
+      if (clickCount < noTexts.length) {
+        noBtn.innerText = noTexts[clickCount];
+      } else {
+        noBtn.innerText = noTexts[noTexts.length - 1];
+      }
+
+      // 2. Shrink "No" Button
+      // We use Math.max to ensure it never goes into negative numbers (which flips the button)
+      currentScale = Math.max(0, currentScale - SHRINK_STEP);
+      noBtn.style.transform = `scale(${currentScale})`;
+
+      // If it gets too small to read/click, hide it
+      if (currentScale < 0.1) {
+        noBtn.style.display = 'none';
+      }
+
+      // 3. Grow "Yes" Button
+      currentYesScale += GROW_STEP;
+      yesBtn.style.transform = `scale(${currentYesScale})`;
+    });
+
+    yesBtn.addEventListener('click', () => {
+      // Reset styles slightly to look clean
+      yesBtn.style.transform = 'scale(1)';
+      
+      // Hide question, show success
+      questionContainer.classList.add('hidden');
+      successContainer.classList.remove('hidden');
+      successContainer.style.display = 'flex';
+    });
+  </script>
+</body>
+</html>
